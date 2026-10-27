@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: fullon_dao_bot
+      POSTGRES_USER: fullon_dao_bot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - dao_bot_pg:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  api:
+    build: .
+    env_file: .env
+    depends_on: [postgres]
+    ports: ["127.0.0.1:8787:8787"]
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: ["node","dist/src/worker.js"]
+    env_file: .env
+    depends_on: [postgres]
+    restart: unless-stopped
+
+volumes:
+  dao_bot_pg:
